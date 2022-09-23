@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">iTextPDF</string>
+    <string name="app_name">DemoPDF</string>
     <string name="open_pdf">Open pdf</string>
-    <string name="appTitle">iText 7 Demo</string>
+    <string name="appTitle">Demo</string>
     <string name="filename">Filename: %1$s</string>
     <string name="share_pdf_title">Share split pdf...</string>
     <string name="custom_help_title">Help: Splitting</string>

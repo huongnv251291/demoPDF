@@ -1,13 +1,17 @@
 package com.itextpdf.android.library.fragments
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.res.TypedArray
+import android.database.Cursor
 import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.provider.OpenableColumns
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
@@ -15,9 +19,11 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +36,9 @@ import androidx.fragment.app.*
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
+import com.blankj.utilcode.util.ToastUtils
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.itextpdf.android.library.R
@@ -48,10 +57,13 @@ import com.itextpdf.android.library.util.PdfManipulator
 import com.itextpdf.android.library.util.PointPositionMappingInfo
 import com.itextpdf.android.library.util.RectanglePositionMappingInfo
 import com.itextpdf.android.library.views.PdfViewScrollHandle
+import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.colors.DeviceRgb
 import com.itextpdf.kernel.pdf.annot.PdfAnnotation
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.reflect.Method
 
 
@@ -194,6 +206,23 @@ class PdfFragment : Fragment() {
                 setAnnotationTextViewVisibility(false)
                 binding.etTextAnnotation.text.clear()
             }
+        }
+        binding.addText.setOnClickListener {
+            MaterialDialog(requireActivity()).show {
+                input { dialog, text ->
+                    // Text submitted with the action button
+                    pdfManipulator.addTextToPdf(text.toString())
+                    applyChanges()
+                    ToastUtils.showShort("Add text success text in add random 0 to 500px x and y")
+                }
+                positiveButton(R.string.submit)
+            }
+
+        }
+        binding.addImage.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            someActivityResultLauncher.launch(intent)
         }
         return binding.root
     }
@@ -548,6 +577,72 @@ class PdfFragment : Fragment() {
         }
 
         annotationViewSetupComplete = true
+    }
+
+    var someActivityResultLauncher = registerForActivityResult(
+        StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val fpath: Uri? = data?.data
+            var realPath: String? = null
+            try {
+                realPath = getPath(fpath)
+                val imageData = ImageDataFactory.create(realPath)
+                pdfManipulator.addImageToPdf(imageData)
+                applyChanges()
+                ToastUtils.showShort("Add image success text in add random 0 to 500px x and y with full size no scale with doc")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getPath(uri: Uri?): String? {
+        val fileName: String = getFileName(uri)
+        val file: File = File(context?.externalCacheDir, fileName)
+        file.createNewFile()
+        FileOutputStream(file).use { outputStream ->
+            uri?.let {
+                requireActivity().contentResolver.openInputStream(it).use { inputStream ->
+                    var length: Int
+                    val bytes = ByteArray(1024)
+
+                    // copy data from input stream to output stream
+                    while (inputStream!!.read(bytes).also { it -> length = it } != -1) {
+                        outputStream.write(bytes, 0, length)
+                    }
+                    outputStream.flush()
+                }
+            }
+        }
+        return file.absolutePath
+    }
+
+    private fun getFileName(uri: Uri?): String {
+        var fileName: String = getFileNameFromCursor(uri)
+        if (!fileName.contains(".")) {
+            val fileExtension: String = getFileExtension(uri)
+            fileName = "$fileName.$fileExtension"
+        }
+        return fileName
+    }
+
+    private fun getFileExtension(uri: Uri?): String {
+        val fileType: String? = uri?.let { requireActivity().contentResolver.getType(it) }
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType) ?: ""
+    }
+
+    private fun getFileNameFromCursor(uri: Uri?): String {
+        val fileCursor: Cursor? = uri?.let { requireActivity().contentResolver.query(it, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null) }
+        var fileName: String? = null
+        if (fileCursor != null && fileCursor.moveToFirst()) {
+            val cIndex = fileCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cIndex != -1) {
+                fileName = fileCursor.getString(cIndex)
+            }
+        }
+        return fileName ?: ""
     }
 
     private fun createAnnotationListItems(): List<AnnotationRecyclerItem> {

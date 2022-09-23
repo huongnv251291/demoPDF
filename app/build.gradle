@@ -80,9 +80,14 @@ dependencies {
     implementation 'org.jacoco:org.jacoco.agent:0.8.7'
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.blankj:utilcode:1.30.7"
+    // Material dialog
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:input:3.3.0'
+    implementation 'com.afollestad.material-dialogs:files:3.3.0'
 }
 
-configurations.all{
+configurations.all {
     resolutionStrategy {
         eachDependency { details ->
             if ('org.jacoco' == details.requested.group) {

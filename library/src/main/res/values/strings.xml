@@ -27,5 +27,6 @@
     <string name="markup_annotation_error">Error while adding markup annotation.</string>
     <string name="edit_annotation_error">Error while editing annotation.</string>
     <string name="remove_annotation_error">Error while removing annotation.</string>
+    <string name="submit">Add Text</string>
 
 </resources>

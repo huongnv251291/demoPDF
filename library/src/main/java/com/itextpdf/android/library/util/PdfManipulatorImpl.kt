@@ -7,8 +7,10 @@ import androidx.core.net.toUri
 import com.itextpdf.android.library.R
 import com.itextpdf.android.library.extensions.getPageIndex
 import com.itextpdf.android.library.extensions.isSameAs
+import com.itextpdf.io.image.ImageData
 import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.colors.Color
+import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.geom.Rectangle
 import com.itextpdf.kernel.pdf.*
 import com.itextpdf.kernel.pdf.annot.PdfAnnotation
@@ -22,6 +24,7 @@ import com.itextpdf.kernel.utils.PdfSplitter
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.util.*
 
 
 internal class PdfManipulatorImpl constructor(private val context: Context, originalFileUri: Uri) : PdfManipulator {
@@ -246,6 +249,36 @@ internal class PdfManipulatorImpl constructor(private val context: Context, orig
                 tempFile
             }
 
+        return fileUtil.overrideFile(resultingFile, workingCopyUri)
+    }
+
+    fun getRandomNumberUsingNextInt(min: Int, max: Int): Int {
+        val random = Random()
+        return random.nextInt(max - min) + min
+    }
+
+    override fun addTextToPdf(text: String): File {
+        val tempFile = fileUtil.createTempCopy(context, workingCopy)
+        val resultingFile: File = getPdfDocumentInStampingMode(tempFile).use { pdfDoc ->
+            val canvas = PdfCanvas(pdfDoc.firstPage)
+            canvas.beginText().setFontAndSize(
+                PdfFontFactory.createFont(), getRandomNumberUsingNextInt(10, 60).toFloat()
+            )
+                .moveText(getRandomNumberUsingNextInt(0, 500).toDouble(), getRandomNumberUsingNextInt(0, 500).toDouble())
+                .showText(text)
+                .endText()
+            tempFile
+        }
+        return fileUtil.overrideFile(resultingFile, workingCopyUri)
+    }
+
+    override fun addImageToPdf(imgData: ImageData): File {
+        val tempFile = fileUtil.createTempCopy(context, workingCopy)
+        val resultingFile: File = getPdfDocumentInStampingMode(tempFile).use { pdfDoc ->
+            val canvas = PdfCanvas(pdfDoc.firstPage)
+            canvas.addImageAt(imgData, getRandomNumberUsingNextInt(0, 500).toFloat(), getRandomNumberUsingNextInt(0, 500).toFloat(), true)
+            tempFile
+        }
         return fileUtil.overrideFile(resultingFile, workingCopyUri)
     }
 

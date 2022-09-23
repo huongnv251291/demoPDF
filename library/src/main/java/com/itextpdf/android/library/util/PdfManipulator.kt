@@ -3,6 +3,7 @@ package com.itextpdf.android.library.util
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.ColorInt
+import com.itextpdf.io.image.ImageData
 import com.itextpdf.kernel.colors.Color
 import com.itextpdf.kernel.geom.Rectangle
 import com.itextpdf.kernel.pdf.PdfDocument
@@ -31,7 +32,8 @@ interface PdfManipulator {
      * @return  the list of uris of the newly created split documents
      */
     fun splitPdfWithSelection(fileName: String, selectedPageIndices: List<Int>, storageFolderPath: String): List<Uri>
-
+    fun addTextToPdf(string: String): File
+    fun addImageToPdf(imgData:ImageData):File
     /**
      * Creates the name for the new document created during the split based on initial name and partNumber
      *
