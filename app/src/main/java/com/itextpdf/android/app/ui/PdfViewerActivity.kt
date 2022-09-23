@@ -109,6 +109,7 @@ class PdfViewerActivity : AppCompatActivity() {
             }
             is PdfResult.PdfEdited -> ShareUtil.sharePdf(this, result.file.toUri())
             is PdfResult.PdfSplit -> ShareUtil.sharePdf(this, result.fileContainingSelectedPages)
+            is PdfResult.ShareByUser -> ShareUtil.sharePdf(this, result.file.toUri())
             is PdfResult.NoChanges -> {} // do nothing
             null -> Toast.makeText(this, R.string.no_result, Toast.LENGTH_LONG).show()
         }

@@ -24,6 +24,9 @@ sealed class PdfResult : Parcelable {
     @Parcelize
     class CancelledByUser(val file: File) : PdfResult()
 
+    @Parcelize
+    class ShareByUser(val file: File) : PdfResult()
+
     /**
      * Determines that the user has edited the PDF file and the result is stored in the given [file].
      *

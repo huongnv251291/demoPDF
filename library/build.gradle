@@ -45,9 +45,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            buildConfigField 'String', 'APPLICATION_ID', '"com.itextpdf.android.app"'
         }
         debug {
             testCoverageEnabled = true
+            buildConfigField 'String', 'APPLICATION_ID', '"com.itextpdf.android.app"'
         }
         innerTest {
             matchingFallbacks = ['debug', 'release']

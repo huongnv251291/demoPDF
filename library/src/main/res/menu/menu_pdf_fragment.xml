@@ -7,6 +7,16 @@
         android:icon="@drawable/ic_navigate"
         android:title="@string/navigate_pdf"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_add_text"
+        android:icon="@drawable/ic_baseline_text_fields_24"
+        android:title="@string/add_text"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_add_image"
+        android:icon="@drawable/ic_baseline_image_24"
+        android:title="@string/add_img"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_highlight"
@@ -24,5 +34,10 @@
         android:id="@+id/action_split_pdf"
         android:icon="@drawable/ic_split"
         android:title="@string/split_document"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_baseline_share_24"
+        android:title="@string/share_document"
         app:showAsAction="ifRoom" />
 </menu>

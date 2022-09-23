@@ -10,7 +10,6 @@ import com.itextpdf.android.library.extensions.isSameAs
 import com.itextpdf.io.image.ImageData
 import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.colors.Color
-import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.geom.Rectangle
 import com.itextpdf.kernel.pdf.*
@@ -23,6 +22,7 @@ import com.itextpdf.kernel.pdf.xobject.PdfFormXObject
 import com.itextpdf.kernel.utils.PageRange
 import com.itextpdf.kernel.utils.PdfSplitter
 import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.VerticalAlignment
@@ -280,8 +280,17 @@ internal class PdfManipulatorImpl constructor(private val context: Context, orig
     override fun addImageToPdf(imgData: ImageData): File {
         val tempFile = fileUtil.createTempCopy(context, workingCopy)
         val resultingFile: File = getPdfDocumentInStampingMode(tempFile).use { pdfDoc ->
-            val canvas = PdfCanvas(pdfDoc.firstPage)
-            canvas.addImageAt(imgData, getRandomNumberUsingNextInt(0, 500).toFloat(), getRandomNumberUsingNextInt(0, 500).toFloat(), true)
+//            val canvas = PdfCanvas(pdfDoc.firstPage)
+//            canvas.addImageAt(imgData, getRandomNumberUsingNextInt(0, 500).toFloat(), getRandomNumberUsingNextInt(0, 500).toFloat(), true)
+            val document = Document(pdfDoc, PageSize.A4, false)
+            val image = Image(imgData)
+            val indentation = 0
+
+//            val scaler: Float = (pdfDoc.getPage(1).pageSize.width - document.leftMargin
+//                    - document.rightMargin - indentation).div(image.width.value * 100)
+            image.setAutoScale(true)
+            document.add(image)
+            document.close()
             tempFile
         }
         return fileUtil.overrideFile(resultingFile, workingCopyUri)

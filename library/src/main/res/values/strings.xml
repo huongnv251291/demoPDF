@@ -28,5 +28,8 @@
     <string name="edit_annotation_error">Error while editing annotation.</string>
     <string name="remove_annotation_error">Error while removing annotation.</string>
     <string name="submit">Add Text</string>
+    <string name="add_text">Add Text</string>
+    <string name="add_img">Add Image</string>
+    <string name="share_document">Share PDF</string>
 
 </resources>
