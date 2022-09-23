@@ -11,6 +11,7 @@ import com.itextpdf.io.image.ImageData
 import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.colors.Color
 import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.geom.Rectangle
 import com.itextpdf.kernel.pdf.*
 import com.itextpdf.kernel.pdf.annot.PdfAnnotation
@@ -21,6 +22,10 @@ import com.itextpdf.kernel.pdf.extgstate.PdfExtGState
 import com.itextpdf.kernel.pdf.xobject.PdfFormXObject
 import com.itextpdf.kernel.utils.PageRange
 import com.itextpdf.kernel.utils.PdfSplitter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.properties.TextAlignment
+import com.itextpdf.layout.properties.VerticalAlignment
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -260,13 +265,13 @@ internal class PdfManipulatorImpl constructor(private val context: Context, orig
     override fun addTextToPdf(text: String): File {
         val tempFile = fileUtil.createTempCopy(context, workingCopy)
         val resultingFile: File = getPdfDocumentInStampingMode(tempFile).use { pdfDoc ->
-            val canvas = PdfCanvas(pdfDoc.firstPage)
-            canvas.beginText().setFontAndSize(
-                PdfFontFactory.createFont(), getRandomNumberUsingNextInt(10, 60).toFloat()
+            val document = Document(pdfDoc, PageSize.A4, false)
+            val footer = Paragraph(String.format(text));
+            document.showTextAligned(
+                footer, 297.5f, 20f, 1,
+                TextAlignment.CENTER, VerticalAlignment.MIDDLE, 0f
             )
-                .moveText(getRandomNumberUsingNextInt(0, 500).toDouble(), getRandomNumberUsingNextInt(0, 500).toDouble())
-                .showText(text)
-                .endText()
+            document.close()
             tempFile
         }
         return fileUtil.overrideFile(resultingFile, workingCopyUri)
