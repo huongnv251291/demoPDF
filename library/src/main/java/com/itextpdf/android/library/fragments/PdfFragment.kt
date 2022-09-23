@@ -31,6 +31,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.use
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.*
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -207,23 +208,21 @@ class PdfFragment : Fragment() {
                 binding.etTextAnnotation.text.clear()
             }
         }
-        binding.addText.setOnClickListener {
-            MaterialDialog(requireActivity()).show {
-                input { dialog, text ->
-                    // Text submitted with the action button
-                    pdfManipulator.addTextToPdf(text.toString())
-                    applyChanges()
-                    ToastUtils.showShort("Add text success text in add random 0 to 500px x and y")
-                }
-                positiveButton(R.string.submit)
-            }
-
-        }
-        binding.addImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            someActivityResultLauncher.launch(intent)
-        }
+//        binding.addText.setOnClickListener {
+//            MaterialDialog(requireActivity()).show {
+//                input { dialog, text ->
+//                    // Text submitted with the action button
+//                    pdfManipulator.addTextToPdf(text.toString())
+//                    applyChanges()
+//                    ToastUtils.showShort("Add text success text in add random 0 to 500px x and y")
+//                }
+//                positiveButton(R.string.submit)
+//            }
+//
+//        }
+//        binding.addImage.setOnClickListener {
+//
+//        }
         return binding.root
     }
 
@@ -393,6 +392,18 @@ class PdfFragment : Fragment() {
             toggleHighlightingViewVisibility()
             true
         }
+        R.id.action_add_text -> {
+            addText()
+            true
+        }
+        R.id.action_share -> {
+            setFragmentResult(PdfResult.ShareByUser(pdfManipulator.workingCopy))
+            true
+        }
+        R.id.action_add_image -> {
+            addImage()
+            true
+        }
         R.id.action_annotations -> {
             if (annotationViewSetupComplete)
                 toggleAnnotationsViewVisibility()
@@ -413,6 +424,23 @@ class PdfFragment : Fragment() {
         }
         else -> {
             super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun addImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        someActivityResultLauncher.launch(intent)
+    }
+
+    private fun addText() {
+        MaterialDialog(requireActivity()).show {
+            input { dialog, text ->
+                // Text submitted with the action button
+                pdfManipulator.addTextToPdf(text.toString())
+                setupPdfView()
+            }
+            positiveButton(R.string.submit)
         }
     }
 
@@ -590,8 +618,9 @@ class PdfFragment : Fragment() {
                 realPath = getPath(fpath)
                 val imageData = ImageDataFactory.create(realPath)
                 pdfManipulator.addImageToPdf(imageData)
-                applyChanges()
-                ToastUtils.showShort("Add image success text in add random 0 to 500px x and y with full size no scale with doc")
+                setupPdfView()
+//                applyChanges()
+//                ToastUtils.showShort("Add image success text in add random 0 to 500px x and y with full size no scale with doc")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
